@@ -3,8 +3,14 @@ import glob
 import pickle
 import pandas as pd
 import tqdm
+import uuid
+import re
 
 year = "2019"
+
+## load list of users mentioned in tweets
+mentions = pd.read_csv(f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/formatted_mentions_final.csv")
+author_names = set(mentions['mention'].tolist())
 
 ## read list of tweet ids in the nsfw-cleaned climatetv set
 if year == "2019":
@@ -47,6 +53,7 @@ found = 0
 not_found = 0
 for file in tqdm.tqdm(author_files):
     author_infos = {}
+    author_mentions = {}
     # read pkl file
     with open(file, mode='rb') as infile:
         author_single = pickle.load(infile)
@@ -69,20 +76,85 @@ for file in tqdm.tqdm(author_files):
         if medias_tweeted in media_dict:
             tweet_id = media_dict[medias_tweeted]
             tweet_authors[tweet_id] = {"name": u['name'], "username": u['username'],"location": u['location'],"verified": u['verified'],"description": u['description']}
+        elif u['username'] in author_names:
+            author_mentions[u["username"]] = {"name": u['name'], "username": u['username'],"location": u['location'],"verified": u['verified'],"description": u['description']}
+
+print("Found medias: ", len(tweet_authors)) # 2019: 706,732
 
 
-print("Found medias: ", len(tweet_authors)) # 2019: 290,000
-
-
-# create output file
-formatted_authors_file = f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/author_attributes_{year}.csv"
+# create output file 1: mapping tweets to authors
+formatted_authors_file = f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/author_mapping_{year}.csv"
 with open(formatted_authors_file, mode='w', encoding='utf-8', newline='') as outfile:
 
     # create the header
-    headers = ['id','name', 'username', 'location', 'verified', 'description']
+    headers = ['id','username']
     writer = csv.writer(outfile)
     writer.writerow(headers)
 
     for tid, infos in tweet_authors.items():
-        writer.writerow([tid, infos['name'], infos['username'], infos['location'], infos['verified'], infos['description']])
+        infos_formatted = infos['description'].replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        if infos_formatted is None:
+            infos_formatted = "n/a"
+        loc_formatted = infos['location']
+        if loc_formatted is None:
+            loc_formatted = "n/a"
 
+        writer.writerow([tid, infos['name'], infos['username'], loc_formatted, infos['verified'], infos_formatted])
+
+
+# create output file 2: author attributes (username is key)
+formatted_authors_file = f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/author_attributes_{year}.csv"
+author_set = set()
+with open(formatted_authors_file, mode='w', encoding='utf-8', newline='') as outfile:
+
+    # create the header
+    headers = ['author_id','name', 'username', 'location', 'verified', 'description']
+    writer = csv.writer(outfile)
+    writer.writerow(headers)
+
+    for infos in tweet_authors.values():
+        # only add each author once
+        if infos['username'] in author_set:
+            continue
+        # format the description and location to avoid new lines and commas
+        name_formatted = infos['name'].replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        infos_formatted = infos['description'].replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        if infos_formatted is None:
+            infos_formatted = "n/a"
+        elif len(infos_formatted)<1:
+            infos_formatted = "n/a"
+        loc_formatted = infos['location']
+        if loc_formatted is None:
+            loc_formatted = "n/a"
+        else:
+            loc_formatted = loc_formatted.replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        # create a unique id
+        uid = uuid.uuid4()
+        # write to file
+        writer.writerow([uid, name_formatted, infos['username'], loc_formatted, infos['verified'], infos_formatted])
+        # add author to processed authors
+        author_set.add(infos['username'])
+
+    for infos in author_mentions.values():
+        # only add each author once
+        if infos['username'] in author_set:
+            continue
+        # format the description and location to avoid new lines and commas
+        name_formatted = infos['name'].replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        infos_formatted = infos['description'].replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        if infos_formatted is None:
+            infos_formatted = "n/a"
+        elif len(infos_formatted)<1:
+            infos_formatted = "n/a"
+        loc_formatted = infos['location']
+        if loc_formatted is None:
+            loc_formatted = "n/a"
+        else:
+            loc_formatted = loc_formatted.replace('\n', ' ').replace('\r', ' ').replace(',', ';')
+        # create a unique id
+        uid = uuid.uuid4()
+        # write to file
+        writer.writerow([uid, name_formatted, infos['username'], loc_formatted, infos['verified'], infos_formatted])
+        # add author to processed authors
+        author_set.add(infos['username'])
+print("Total unique authors: ", len(author_set)) # 2019: 217,191

@@ -6,7 +6,7 @@ import tqdm
 import uuid
 import re
 
-year = "2019"
+year = "2020"
 
 ## load list of users mentioned in tweets
 mentions = pd.read_csv(f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/formatted_mentions_final.csv")
@@ -24,7 +24,7 @@ else:
     tweet_ids = [t.split("_")[1] for t in tweet_ids]
     tweet_ids = set(tweet_ids)
 
-print("Number of tweet ids in the safe climatetv set in ", year, ": ", len(tweet_ids)) # 2019: 707,438
+print("Number of tweet ids in the safe climatetv set in ", year, ": ", len(tweet_ids)) # 2019: 707,438; 2020: 510051
 
 # read tweet info for all posts in the selected year
 with open(f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/eng_{year}_final.csv", mode='r', encoding='utf-8') as infile:
@@ -35,17 +35,20 @@ with open(f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/eng_{year}_final.csv"
     for row in reader:
         media = row['media_keys']
         tweet_id = row['conversation_id']
+        # skip if no media
+        if media is None or len(media)<1 or media=="nan":
+            continue
         # if tweet is not relevant, skip
         if tweet_id not in tweet_ids:
             continue
         for m in media.split(","):
             media_dict[m] = tweet_id
 
-print("Medias posted in ", year , ": ",len(media_dict)) # 2019: 834,494
+print("Medias posted in ", year , ": ",len(media_dict)) # 2019: 834,494; 2020: 603,075
 #print(author_names)
 
 author_files = glob.glob(f"/ceph/lprasse/ClimateVisions/RDS_urls/processed/backup/*{year}*.pkl")
-print("Number for files to read:" , len(author_files)) # 2019: 365
+print("Number for files to read:" , len(author_files)) # 2019: 365, 2020: 366, 2021: 340, 2022: 365
 
 tweet_authors = {}
 

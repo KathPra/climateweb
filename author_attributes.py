@@ -6,7 +6,8 @@ import tqdm
 import uuid
 import re
 
-year = "2020"
+year = "2021"
+print("year:", year, flush=True)
 
 ## load list of users mentioned in tweets
 mentions = pd.read_csv(f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/formatted_mentions_final.csv")

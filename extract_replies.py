@@ -3,7 +3,7 @@ import csv
 import os
 import re
 
-year = "2021"
+year = "2020"
 csv_path = f"/ceph/lprasse/ClimateVisions/RDS_replies/processed/eng_replies_{year}_final.csv"
 target_path = f"/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/replies_{year}.csv"
 rel_tweets_file = "/ceph/lprasse/ClimateVisions/ClimateWeb/inputs/climatetv_complete.txt"
@@ -67,13 +67,10 @@ with open(csv_path, "r") as f, open(target_path, "w") as o:
         mentions = []
         text = line["text"]
         num_mentions = text.count("@")
-        txt_splits = text.split()
-        txt_mentions = [m for m in txt_splits if "@" in m]
-        mentions = [m[m.find("@")+1:] for m in txt_mentions]
-        mentions = [m for m in mentions if len(m)>3] # requirement 3 > username > 16 # https://help.x.com/en/managing-your-account/x-username-rules
-        # Handle missing spaces or concatenated mentions (e.g. "@user1@user2")
-        if num_mentions > len(mentions):
-            mentions = re.findall(r"@(\w+)", text)
+        mentions = re.findall(r"@(\w+)", text)
+        mentions = [m[m.find("@")+1:] for m in mentions]
+        mentions = [m for m in mentions if len(m)>3 or len(m)<17] # requirement 3 > username > 16 # https://help.x.com/en/managing-your-account/x-username-rules
+                    
         mentions = list(set(mentions))
 
         # write to file

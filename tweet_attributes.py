@@ -28,13 +28,13 @@ with open(tweet_file1, mode='r', encoding='utf-8') as infile, open(formatted_twe
     header = next(reader)
     print("Original header:", header.keys())
     # change column names to "id", "reply_id", "tweet_id", "created_at", "text"
-    new_header = ["conversation_id", "created_at", "text", "like_count", "retweet_count", "quote_count", "reply_count", "image_id"]
+    new_header = ["conversation_id", "created_at", "text", "like_count", "retweet_count", "quote_count", "reply_count", "image_id", "language"]
     writer.writerow(new_header)
 
     for row in reader:
         # copy from the original row
         if row["id"] in tweet_dict:  # filter for relevant tweets
-            writer.writerow([row["id"], row["created_at"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]]])
+            writer.writerow([row["id"], row["created_at"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]], row["lang"]])
             counter_twids += 1
             tweet_dict.pop(row["id"])  # remove to save memory
 print("Relevant tweets in 2019:", counter_twids)
@@ -55,7 +55,7 @@ with open(tweet_file2, mode='r', encoding='utf-8') as infile, open(formatted_twe
     for row in reader:
         # copy from the original row
         if row["id"] in tweet_dict:  # filter for relevant tweets
-            writer.writerow([row["id"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]]])
+            writer.writerow([row["id"], row["created_at"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]], row["lang"]])
             counter_twids += 1
             tweet_dict.pop(row["id"])  # remove to save memory
 print("Relevant tweets in 2019 and 2020:", counter_twids)
@@ -74,7 +74,7 @@ with open(tweet_file3, mode='r', encoding='utf-8') as infile, open(formatted_twe
     for row in reader:
         if row["id"] in tweet_dict:  # filter for relevant tweets
             # copy from the original row
-            writer.writerow([row["id"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]]])
+            writer.writerow([row["id"], row["created_at"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]], row["lang"]])
             counter_twids += 1
             tweet_dict.pop(row["id"])  # remove to save memory
 print("Relevant tweets in 2019,2020, and 2021:", counter_twids)
@@ -93,7 +93,7 @@ with open(tweet_file4, mode='r', encoding='utf-8') as infile, open(formatted_twe
     for row in reader:
         if row["id"] in tweet_dict:  # filter for relevant tweets
             # copy from the original row
-            writer.writerow([row["id"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]]])
+            writer.writerow([row["id"], row["created_at"], row["text"], row["like_count"], row["retweet_count"], row["quote_count"], row["reply_count"], tweet_dict[row["id"]], row["lang"]])
             counter_twids += 1
             tweet_dict.pop(row["id"])
 

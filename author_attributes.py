@@ -6,7 +6,7 @@ import tqdm
 import uuid
 import re
 
-year = "2021"
+year = "2022"
 print("year:", year, flush=True)
 
 ## load list of users mentioned in tweets
@@ -103,7 +103,7 @@ with open(formatted_authors_file, mode='w', encoding='utf-8', newline='') as out
         if loc_formatted is None:
             loc_formatted = "n/a"
 
-        writer.writerow([tid, infos['name'], infos['username'], loc_formatted, infos['verified'], infos_formatted])
+        writer.writerow([tid, infos['username']])
 
 
 # create output file 2: author attributes (username is key)
@@ -112,7 +112,7 @@ author_set = set()
 with open(formatted_authors_file, mode='w', encoding='utf-8', newline='') as outfile:
 
     # create the header
-    headers = ['author_id','name', 'username', 'location', 'verified', 'description']
+    headers = ['author_uuid','name', 'username', 'location', 'verified', 'description', 'author_id']
     writer = csv.writer(outfile)
     writer.writerow(headers)
 
@@ -158,7 +158,7 @@ with open(formatted_authors_file, mode='w', encoding='utf-8', newline='') as out
         # create a unique id
         uid = uuid.uuid4()
         # write to file
-        writer.writerow([uid, name_formatted, infos['username'], loc_formatted, infos['verified'], infos_formatted])
+        writer.writerow([uid, name_formatted, infos['username'], loc_formatted, infos['verified'], infos_formatted, infos["author_id"]])
         # add author to processed authors
         author_set.add(infos['username'])
 print("Total unique authors: ", len(author_set)) # 2019: 217,191

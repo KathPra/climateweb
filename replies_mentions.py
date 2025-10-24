@@ -13,14 +13,14 @@ for year in years:
     ## extract mentions from replies and write to file
     with open(replies, "r") as rf, open(rmentions, "w", encoding='utf-8', newline='') as wf:
         # write header
-        wf.write("tweet_id;mention\n")
+        wf.write("reply_id;mention\n")
         reply_csv = csv.DictReader(rf, delimiter=";", quotechar='"')
         count = 0
         for row in reply_csv:
-            tweet_id = row["tweet_id"]
+            reply_id = row["reply_id"]
             mentions = row["mentions"].split(",")
             for ment in mentions:
-                wf.write(f"{tweet_id};{ment}\n")
+                wf.write(f"{reply_id};{ment}\n")
                 users.add(ment)
 
     print(f"Extracted {len(users)} unique mentioned users.")
